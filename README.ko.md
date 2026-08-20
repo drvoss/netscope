@@ -63,8 +63,11 @@ cmake --build --preset linux-release
 ctest --preset linux-release
 ```
 
-Windows에서는 `windows-release` 프리셋을 사용합니다. PowerShell에서는
-다음 보조 스크립트로 MSVC 환경 준비와 테스트를 함께 실행할 수 있습니다.
+Windows에서 `windows-release` 프리셋을 직접 사용하려면 MSVC developer shell이
+필요합니다. 다음 PowerShell 보조 스크립트는 `vswhere`로 Visual Studio를 찾고,
+MSVC 환경을 준비한 뒤 빌드와 테스트를 실행합니다. Visual Studio 18.x 호환
+triplet은 해당 호스트별 우회가 필요할 때만 적용되며 Visual Studio 2022와
+GitHub-hosted runner는 표준 `x64-windows` triplet을 사용합니다.
 
 ```powershell
 ./scripts/build-cpp.ps1 -Test

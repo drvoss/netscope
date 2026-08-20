@@ -62,8 +62,12 @@ cmake --build --preset linux-release
 ctest --preset linux-release
 ```
 
-Use the `windows-release` preset on Windows. The PowerShell helper can prepare
-the MSVC environment and run tests:
+Using the `windows-release` preset directly requires an MSVC developer shell.
+The PowerShell helper uses `vswhere` to find Visual Studio, prepares the MSVC
+environment, and runs the build and tests. It applies the Visual Studio 18.x
+compatibility triplet only when that host-specific workaround is needed;
+Visual Studio 2022 and GitHub-hosted runners use the standard `x64-windows`
+triplet.
 
 ```powershell
 ./scripts/build-cpp.ps1 -Test

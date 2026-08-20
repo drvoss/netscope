@@ -17,8 +17,7 @@
       "displayName": "Windows x64 Release (MSVC + vcpkg)",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "VCPKG_TARGET_TRIPLET": "x64-windows",
-        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/vcpkg-triplets"
+        "VCPKG_TARGET_TRIPLET": "x64-windows"
       },
       "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
     },

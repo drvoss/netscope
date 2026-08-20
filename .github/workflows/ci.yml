@@ -55,11 +55,18 @@ jobs:
           vcpkgGitCommitId: db4723bd0a99eab031f1a3dee4336dca43049c87
           vcpkgJsonGlob: netscope-cpp/vcpkg.json
       - name: Configure
+        if: runner.os == 'Linux'
         working-directory: netscope-cpp
         run: cmake --preset ${{ matrix.preset }}
       - name: Build
+        if: runner.os == 'Linux'
         working-directory: netscope-cpp
         run: cmake --build --preset ${{ matrix.preset }}
       - name: Test
+        if: runner.os == 'Linux'
         working-directory: netscope-cpp
         run: ctest --preset ${{ matrix.preset }}
+      - name: Build and test with MSVC
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/build-cpp.ps1 -Test

@@ -10,8 +10,9 @@
       * the CMake and Ninja bundled with Visual Studio (no standalone install)
       * VCPKG_ROOT, which CMakePresets.json expands into the toolchain file path
 
-    The overlay triplet in vcpkg-triplets/ pins the MSVC toolset version; see the
-    comment in that file for why vcpkg cannot detect it on VS 2026 without help.
+    Visual Studio 18.x uses the compatibility overlay in vcpkg-triplets-vs18/
+    to pin the working MSVC toolset version. Visual Studio 2022 and GitHub CI
+    use the standard x64-windows triplet.
 
 .PARAMETER Preset
     A configurePreset from CMakePresets.json. Default windows-release.
@@ -41,6 +42,9 @@ if (-not (Test-Path -LiteralPath $vswhere)) {
 $vsRoot = (& $vswhere -latest -products * `
     -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
     -property installationPath).Trim()
+$vsVersion = (& $vswhere -latest -products * `
+    -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+    -property installationVersion).Trim()
 if (-not $vsRoot) {
     throw 'Visual Studio with the Desktop development with C++ workload was not found'
 }
@@ -74,8 +78,14 @@ $ninjaExe = Join-Path $vsNinja 'ninja.exe'
 # vcvars64.bat has run, so `set "PATH=...;%PATH%"` in this same line would splice
 # in the PRE-vcvars PATH and silently discard every directory vcvars just added --
 # including the one holding cl.exe. Absolute paths avoid the whole trap.
+$configure = "`"$cmakeExe`" --preset $Preset -D CMAKE_MAKE_PROGRAM=`"$ninjaExe`""
+if ($vsVersion -like '18.*') {
+    $overlay = Join-Path $cppDir 'vcpkg-triplets-vs18'
+    $configure += " -D VCPKG_OVERLAY_TRIPLETS=`"$overlay`""
+}
+
 $steps = @(
-    "`"$cmakeExe`" --preset $Preset -D CMAKE_MAKE_PROGRAM=`"$ninjaExe`"",
+    $configure,
     "`"$cmakeExe`" --build --preset $Preset"
 )
 if ($Test) { $steps += "`"$ctestExe`" --preset $Preset" }
