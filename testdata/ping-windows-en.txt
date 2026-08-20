@@ -1,0 +1,8 @@
+
+Pinging 93.184.216.34 with 32 bytes of data:
+Reply from 93.184.216.34: bytes=32 time=74ms TTL=56
+
+Ping statistics for 93.184.216.34:
+    Packets: Sent = 1, Received = 1, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 74ms, Maximum = 74ms, Average = 74ms

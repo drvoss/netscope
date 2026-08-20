@@ -1,0 +1,56 @@
+{
+  "name": "basic",
+  "mode": "raw",
+  "target": { "input": "example.com", "ip": "93.184.216.34", "family": "ip4", "resolvedAtMs": 0 },
+  "local": {
+    "interface": "eth0",
+    "address": "192.168.0.23/24",
+    "gateway": "192.168.0.1",
+    "dnsServers": ["8.8.8.8", "1.1.1.1"],
+    "defaultRoute": "0.0.0.0/0 via 192.168.0.1",
+    "publicIp": "203.0.113.7",
+    "note": ""
+  },
+  "health": {
+    "httpStatus": 200,
+    "httpLatencyMs": 120.5,
+    "httpNote": "HEAD",
+    "tcpPort": 443,
+    "tcpOpen": true,
+    "tcpNote": "open"
+  },
+  "steps": [
+    { "kind": "event", "tMs": 0, "eventKind": "start", "text": "start probing example.com (93.184.216.34)" },
+
+    { "kind": "probe", "tMs": 0,    "ttl": 1, "attempt": 1, "outcome": "TTLExpired", "responder": "192.168.0.1",   "rttMs": 1.2 },
+    { "kind": "probe", "tMs": 100,  "ttl": 2, "attempt": 2, "outcome": "TTLExpired", "responder": "10.20.0.1",     "rttMs": 8.4 },
+    { "kind": "probe", "tMs": 200,  "ttl": 3, "attempt": 3, "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 300,  "ttl": 4, "attempt": 4, "outcome": "Reply",      "responder": "93.184.216.34", "rttMs": 74.1 },
+    { "kind": "snapshot", "tMs": 400 },
+
+    { "kind": "probe", "tMs": 1000, "ttl": 1, "attempt": 5, "outcome": "TTLExpired", "responder": "192.168.0.1",   "rttMs": 1.1 },
+    { "kind": "probe", "tMs": 1100, "ttl": 2, "attempt": 6, "outcome": "TTLExpired", "responder": "10.20.0.1",     "rttMs": 8.9 },
+    { "kind": "probe", "tMs": 1200, "ttl": 3, "attempt": 7, "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 1300, "ttl": 4, "attempt": 8, "outcome": "Reply",      "responder": "93.184.216.34", "rttMs": 73.8 },
+    { "kind": "snapshot", "tMs": 1400 },
+
+    { "kind": "probe", "tMs": 2000, "ttl": 1, "attempt": 9,  "outcome": "TTLExpired", "responder": "192.168.0.1",   "rttMs": 1.3 },
+    { "kind": "probe", "tMs": 2100, "ttl": 2, "attempt": 10, "outcome": "TTLExpired", "responder": "10.20.0.1",     "rttMs": 8.6 },
+    { "kind": "probe", "tMs": 2200, "ttl": 3, "attempt": 11, "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 2300, "ttl": 4, "attempt": 12, "outcome": "Reply",      "responder": "93.184.216.34", "rttMs": 74.5 },
+    { "kind": "snapshot", "tMs": 2400 },
+
+    { "kind": "probe", "tMs": 3000, "ttl": 1, "attempt": 13, "outcome": "TTLExpired", "responder": "192.168.0.1",   "rttMs": 1.2 },
+    { "kind": "probe", "tMs": 3100, "ttl": 2, "attempt": 14, "outcome": "TTLExpired", "responder": "10.20.0.1",     "rttMs": 8.5 },
+    { "kind": "probe", "tMs": 3200, "ttl": 3, "attempt": 15, "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 3300, "ttl": 4, "attempt": 16, "outcome": "Timeout" },
+    { "kind": "snapshot", "tMs": 3400 },
+
+    { "kind": "enrich", "tMs": 3500, "ip": "192.168.0.1",   "rdns": "gateway",       "asn": "-",        "org": "-" },
+    { "kind": "enrich", "tMs": 3500, "ip": "10.20.0.1",     "rdns": "isp-core-1",    "asn": "AS9999",   "org": "EXAMPLE-ISP, KR" },
+    { "kind": "enrich", "tMs": 3500, "ip": "93.184.216.34", "rdns": "example.com",   "asn": "AS15133",  "org": "EDGECAST, US" },
+
+    { "kind": "trace-round", "tMs": 3600 }
+  ],
+  "emitAtMs": 4000
+}

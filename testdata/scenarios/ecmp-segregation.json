@@ -1,0 +1,49 @@
+{
+  "name": "ecmp-segregation",
+  "_why": "Pins responder ordering and per-responder statistics (spec §2, §5.3). The primary must FLIP when the second responder overtakes the first on observation count, each responder's avg must stay its own, and two responders tied on count must order by ascending IP. A map-iteration-order dependency in either implementation shows up here as a different responders array.",
+  "mode": "raw",
+  "target": { "input": "anycast.example.net", "ip": "198.51.100.50", "family": "ip4", "resolvedAtMs": 5 },
+  "local": {
+    "interface": "eth0",
+    "address": "10.2.0.9/16",
+    "gateway": "10.2.0.1",
+    "dnsServers": ["1.0.0.1", "1.1.1.1"],
+    "defaultRoute": "0.0.0.0/0 via 10.2.0.1",
+    "publicIp": "198.51.100.200",
+    "note": ""
+  },
+  "health": {
+    "httpStatus": 200, "httpLatencyMs": 61.5, "httpNote": "GET",
+    "tcpPort": 443, "tcpOpen": true, "tcpNote": "open"
+  },
+  "steps": [
+    { "kind": "probe", "tMs": 100, "ttl": 3, "attempt": 1, "outcome": "Reply", "responder": "198.51.100.50", "rttMs": 60.0 },
+
+    { "kind": "probe", "tMs": 0,    "ttl": 2, "attempt": 2, "outcome": "TTLExpired", "responder": "10.0.0.1", "rttMs": 10.0 },
+    { "kind": "probe", "tMs": 1000, "ttl": 2, "attempt": 3, "outcome": "TTLExpired", "responder": "10.0.0.1", "rttMs": 11.0 },
+    { "kind": "probe", "tMs": 2000, "ttl": 2, "attempt": 4, "outcome": "TTLExpired", "responder": "10.0.0.1", "rttMs": 12.0 },
+    { "kind": "probe", "tMs": 3000, "ttl": 2, "attempt": 5, "outcome": "TTLExpired", "responder": "10.0.0.2", "rttMs": 90.0 },
+    { "kind": "probe", "tMs": 4000, "ttl": 2, "attempt": 6, "outcome": "TTLExpired", "responder": "10.0.0.2", "rttMs": 91.0 },
+    { "kind": "snapshot", "tMs": 5000 },
+
+    { "kind": "probe", "tMs": 6000, "ttl": 2, "attempt": 7, "outcome": "TTLExpired", "responder": "10.0.0.2", "rttMs": 92.0 },
+    { "kind": "probe", "tMs": 7000, "ttl": 2, "attempt": 8, "outcome": "TTLExpired", "responder": "10.0.0.2", "rttMs": 93.0 },
+    { "kind": "snapshot", "tMs": 7500 },
+
+    { "kind": "probe", "tMs": 8000, "ttl": 2, "attempt": 9,  "outcome": "TTLExpired", "responder": "10.0.0.4", "rttMs": 30.0 },
+    { "kind": "probe", "tMs": 9000, "ttl": 2, "attempt": 10, "outcome": "TTLExpired", "responder": "10.0.0.3", "rttMs": 31.0 },
+
+    { "kind": "probe", "tMs": 500,  "ttl": 1, "attempt": 11, "outcome": "TTLExpired", "responder": "10.2.0.1", "rttMs": 1.0 },
+    { "kind": "probe", "tMs": 1500, "ttl": 1, "attempt": 12, "outcome": "TTLExpired", "responder": "10.2.0.1", "rttMs": 1.2 },
+    { "kind": "probe", "tMs": 2500, "ttl": 1, "attempt": 13, "outcome": "TTLExpired", "responder": "10.2.0.1", "rttMs": 1.1 },
+
+    { "kind": "snapshot", "tMs": 9500 },
+    { "kind": "trace-round", "tMs": 9600 },
+
+    { "kind": "enrich", "tMs": 9700, "ip": "10.2.0.1", "rdns": "-", "asn": "-", "org": "-" },
+    { "kind": "enrich", "tMs": 9700, "ip": "10.0.0.1", "rdns": "-", "asn": "-", "org": "-" },
+    { "kind": "enrich", "tMs": 9700, "ip": "10.0.0.2", "rdns": "-", "asn": "-", "org": "-" },
+    { "kind": "enrich", "tMs": 9700, "ip": "198.51.100.50", "rdns": "anycast.example.net", "asn": "AS64502", "org": "EXAMPLE-ANYCAST, US" }
+  ],
+  "emitAtMs": 10000
+}

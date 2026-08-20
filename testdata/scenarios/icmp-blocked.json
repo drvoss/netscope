@@ -1,0 +1,48 @@
+{
+  "name": "icmp-blocked",
+  "_why": "The Definition-of-Done failure path 'ICMP blocked end to end'. Nothing on the path answers, so every hop must read SILENT -- never TRANSIT_ONLY, because there is no downstream evidence, and never anything claiming 'filtered' (spec §5.1). It also pins the independence of the health bar: HTTP 200 and an open TCP port coexist with a completely silent path, which is exactly the real-world case that a naive implementation would report as 'host down' (spec §6.5).",
+  "mode": "raw",
+  "target": { "input": "icmp-blocked.example.com", "ip": "198.51.100.77", "family": "ip4", "resolvedAtMs": 8 },
+  "local": {
+    "interface": "eth0",
+    "address": "172.16.4.20/22",
+    "gateway": "172.16.4.1",
+    "dnsServers": ["172.16.4.1"],
+    "defaultRoute": "0.0.0.0/0 via 172.16.4.1",
+    "publicIp": "",
+    "note": ""
+  },
+  "health": {
+    "httpStatus": 200,
+    "httpLatencyMs": 88.25,
+    "httpNote": "HEAD",
+    "tcpPort": 443,
+    "tcpOpen": true,
+    "tcpNote": "open"
+  },
+  "steps": [
+    { "kind": "event", "tMs": 0, "eventKind": "start", "text": "start probing icmp-blocked.example.com (198.51.100.77)" },
+
+    { "kind": "probe", "tMs": 0,    "ttl": 1, "attempt": 1,  "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 100,  "ttl": 2, "attempt": 2,  "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 200,  "ttl": 3, "attempt": 3,  "outcome": "Timeout" },
+    { "kind": "snapshot", "tMs": 300 },
+
+    { "kind": "probe", "tMs": 1000, "ttl": 1, "attempt": 4,  "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 1100, "ttl": 2, "attempt": 5,  "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 1200, "ttl": 3, "attempt": 6,  "outcome": "Timeout" },
+    { "kind": "snapshot", "tMs": 1300 },
+
+    { "kind": "probe", "tMs": 2000, "ttl": 1, "attempt": 7,  "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 2100, "ttl": 2, "attempt": 8,  "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 2200, "ttl": 3, "attempt": 9,  "outcome": "Timeout" },
+    { "kind": "snapshot", "tMs": 2300 },
+
+    { "kind": "probe", "tMs": 3000, "ttl": 1, "attempt": 10, "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 3100, "ttl": 2, "attempt": 11, "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 3200, "ttl": 3, "attempt": 12, "outcome": "Timeout" },
+    { "kind": "snapshot", "tMs": 3300 },
+    { "kind": "trace-round", "tMs": 3400 }
+  ],
+  "emitAtMs": 3500
+}

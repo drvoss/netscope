@@ -1,0 +1,59 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": { "major": 3, "minor": 21, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
+      "name": "windows-release",
+      "inherits": "base",
+      "displayName": "Windows x64 Release (MSVC + vcpkg)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "VCPKG_TARGET_TRIPLET": "x64-windows",
+        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/vcpkg-triplets"
+      },
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
+    },
+    {
+      "name": "windows-debug",
+      "inherits": "windows-release",
+      "displayName": "Windows x64 Debug",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "linux-release",
+      "inherits": "base",
+      "displayName": "Linux x64 Release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "VCPKG_TARGET_TRIPLET": "x64-linux"
+      },
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "windows-release", "configurePreset": "windows-release" },
+    { "name": "windows-debug", "configurePreset": "windows-debug" },
+    { "name": "linux-release", "configurePreset": "linux-release" }
+  ],
+  "testPresets": [
+    {
+      "name": "windows-release",
+      "configurePreset": "windows-release",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "linux-release",
+      "configurePreset": "linux-release",
+      "output": { "outputOnFailure": true }
+    }
+  ]
+}

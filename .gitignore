@@ -1,0 +1,24 @@
+# Build output
+**/build/
+**/dist/
+*.exe
+*.dll
+*.obj
+*.o
+*.a
+*.lib
+*.pdb
+*.out
+
+# Tooling and editor state
+.idea/
+.vscode/
+*.user
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local environment
+.env
+.env.*
+!.env.example

@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  go:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: netscope-go
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: netscope-go/go.mod
+          cache-dependency-path: netscope-go/go.sum
+      - name: Check formatting
+        shell: bash
+        run: test -z "$(gofmt -l .)"
+      - run: go vet ./...
+      - run: go test ./...
+      - name: Race detector
+        if: runner.os == 'Linux'
+        run: go test -race ./...
+      - name: Vulnerability scan
+        if: runner.os == 'Linux'
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.7.0 ./...
+      - run: go build ./...
+
+  cpp:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            preset: linux-release
+          - os: windows-latest
+            preset: windows-release
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Set up vcpkg
+        uses: lukka/run-vcpkg@5e0cab206a5ea620130caf672fce3e4a6b5666a1 # v11.5
+        with:
+          vcpkgGitCommitId: db4723bd0a99eab031f1a3dee4336dca43049c87
+          vcpkgJsonGlob: netscope-cpp/vcpkg.json
+      - name: Configure
+        working-directory: netscope-cpp
+        run: cmake --preset ${{ matrix.preset }}
+      - name: Build
+        working-directory: netscope-cpp
+        run: cmake --build --preset ${{ matrix.preset }}
+      - name: Test
+        working-directory: netscope-cpp
+        run: ctest --preset ${{ matrix.preset }}

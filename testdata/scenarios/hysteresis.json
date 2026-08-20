@@ -1,0 +1,62 @@
+{
+  "name": "hysteresis",
+  "_why": "Pins the RESPONDING -> DEGRADED -> RESPONDING state machine on its exact boundaries (spec §5.2). hop1 recovers after two replies; hop2 gets only one reply and must still read DEGRADED. Because hysteresis is path-dependent, the final snapshot alone discriminates: reaching RESPONDING on hop1 proves it passed through DEGRADED and needed recoverStreak=2, and hop2 staying DEGRADED proves one reply was not enough.",
+  "mode": "raw",
+  "target": { "input": "example.com", "ip": "93.184.216.34", "family": "ip4", "resolvedAtMs": 0 },
+  "local": {
+    "interface": "eth0",
+    "address": "10.0.0.5/24",
+    "gateway": "10.0.0.1",
+    "dnsServers": ["1.1.1.1"],
+    "defaultRoute": "0.0.0.0/0 via 10.0.0.1",
+    "publicIp": "",
+    "note": ""
+  },
+  "health": {
+    "httpStatus": 200, "httpLatencyMs": 30.0, "httpNote": "HEAD",
+    "tcpPort": 443, "tcpOpen": true, "tcpNote": "open"
+  },
+  "steps": [
+    { "kind": "probe", "tMs": 0,  "ttl": 1, "attempt": 1, "outcome": "TTLExpired", "responder": "10.0.0.1", "rttMs": 5.0 },
+    { "kind": "probe", "tMs": 10, "ttl": 2, "attempt": 2, "outcome": "TTLExpired", "responder": "10.0.0.2", "rttMs": 10.0 },
+    { "kind": "probe", "tMs": 20, "ttl": 3, "attempt": 3, "outcome": "Reply", "responder": "93.184.216.34", "rttMs": 50.0 },
+
+    { "kind": "probe", "tMs": 1000, "ttl": 1, "attempt": 4, "outcome": "TTLExpired", "responder": "10.0.0.1", "rttMs": 5.2 },
+    { "kind": "probe", "tMs": 1010, "ttl": 2, "attempt": 5, "outcome": "TTLExpired", "responder": "10.0.0.2", "rttMs": 10.2 },
+    { "kind": "probe", "tMs": 1020, "ttl": 3, "attempt": 6, "outcome": "Reply", "responder": "93.184.216.34", "rttMs": 50.2 },
+
+    { "kind": "probe", "tMs": 2000, "ttl": 1, "attempt": 7, "outcome": "TTLExpired", "responder": "10.0.0.1", "rttMs": 5.1 },
+    { "kind": "probe", "tMs": 2010, "ttl": 2, "attempt": 8, "outcome": "TTLExpired", "responder": "10.0.0.2", "rttMs": 10.1 },
+    { "kind": "probe", "tMs": 2020, "ttl": 3, "attempt": 9, "outcome": "Reply", "responder": "93.184.216.34", "rttMs": 50.1 },
+    { "kind": "snapshot", "tMs": 2100 },
+
+    { "kind": "probe", "tMs": 3000, "ttl": 1, "attempt": 10, "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 3010, "ttl": 2, "attempt": 11, "outcome": "Timeout" },
+    { "kind": "snapshot", "tMs": 3100 },
+
+    { "kind": "probe", "tMs": 4000, "ttl": 1, "attempt": 12, "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 4010, "ttl": 2, "attempt": 13, "outcome": "Timeout" },
+    { "kind": "snapshot", "tMs": 4100 },
+
+    { "kind": "probe", "tMs": 5000, "ttl": 1, "attempt": 14, "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 5010, "ttl": 2, "attempt": 15, "outcome": "Timeout" },
+    { "kind": "snapshot", "tMs": 5100 },
+
+    { "kind": "probe", "tMs": 6000, "ttl": 1, "attempt": 16, "outcome": "Timeout" },
+    { "kind": "probe", "tMs": 6010, "ttl": 2, "attempt": 17, "outcome": "Timeout" },
+    { "kind": "snapshot", "tMs": 6100 },
+
+    { "kind": "probe", "tMs": 7000, "ttl": 1, "attempt": 18, "outcome": "TTLExpired", "responder": "10.0.0.1", "rttMs": 5.5 },
+    { "kind": "probe", "tMs": 7010, "ttl": 2, "attempt": 19, "outcome": "TTLExpired", "responder": "10.0.0.2", "rttMs": 10.5 },
+    { "kind": "probe", "tMs": 7020, "ttl": 3, "attempt": 20, "outcome": "Reply", "responder": "93.184.216.34", "rttMs": 50.5 },
+    { "kind": "snapshot", "tMs": 7100 },
+
+    { "kind": "probe", "tMs": 8000, "ttl": 1, "attempt": 21, "outcome": "TTLExpired", "responder": "10.0.0.1", "rttMs": 5.4 },
+    { "kind": "probe", "tMs": 8020, "ttl": 3, "attempt": 22, "outcome": "Reply", "responder": "93.184.216.34", "rttMs": 50.4 },
+    { "kind": "snapshot", "tMs": 8100 },
+
+    { "kind": "enrich", "tMs": 8150, "ip": "10.0.0.1", "rdns": "-", "asn": "-", "org": "-" },
+    { "kind": "enrich", "tMs": 8150, "ip": "10.0.0.2", "rdns": "-", "asn": "-", "org": "-" }
+  ],
+  "emitAtMs": 8200
+}

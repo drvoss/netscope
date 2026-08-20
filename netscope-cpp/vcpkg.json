@@ -1,0 +1,11 @@
+{
+  "name": "netscope",
+  "version": "0.3.0",
+  "builtin-baseline": "db4723bd0a99eab031f1a3dee4336dca43049c87",
+  "description": "NetScope - ping x traceroute single-screen TUI dashboard (C++ implementation, binary nscope)",
+  "dependencies": [
+    "ftxui",
+    "asio",
+    "doctest"
+  ]
+}

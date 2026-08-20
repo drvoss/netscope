@@ -1,0 +1,32 @@
+{
+  "name": "window-boundary",
+  "_why": "Pins the exact 120s window edge (spec §4.1). The sample at tMs=0 sits precisely on the cut when now=120000 and must be DROPPED (the rule is sentAt <= now - windowDuration), while the sample at tMs=1000 must survive. Getting the comparison off by one would change avg, best/worst and the sample count -- and an off-by-one that differs between the two implementations would be invisible without this case.",
+  "mode": "raw",
+  "target": { "input": "slow.example.net", "ip": "203.0.113.20", "family": "ip4", "resolvedAtMs": 0 },
+  "local": {
+    "interface": "eth0",
+    "address": "192.0.2.10/24",
+    "gateway": "192.0.2.1",
+    "dnsServers": ["8.8.8.8"],
+    "defaultRoute": "0.0.0.0/0 via 192.0.2.1",
+    "publicIp": "",
+    "note": ""
+  },
+  "health": {
+    "httpStatus": 0, "httpLatencyMs": null, "httpNote": "no response",
+    "tcpPort": 443, "tcpOpen": false, "tcpNote": "refused"
+  },
+  "steps": [
+    { "kind": "probe", "tMs": 0,    "ttl": 1, "attempt": 1, "outcome": "TTLExpired", "responder": "192.0.2.1", "rttMs": 10.0 },
+    { "kind": "probe", "tMs": 1000, "ttl": 1, "attempt": 2, "outcome": "TTLExpired", "responder": "192.0.2.1", "rttMs": 12.0 },
+    { "kind": "probe", "tMs": 2000, "ttl": 2, "attempt": 3, "outcome": "Reply", "responder": "203.0.113.20", "rttMs": 40.0 },
+    { "kind": "snapshot", "tMs": 2100 },
+
+    { "kind": "probe", "tMs": 120000, "ttl": 1, "attempt": 4, "outcome": "TTLExpired", "responder": "192.0.2.1", "rttMs": 14.0 },
+    { "kind": "probe", "tMs": 120000, "ttl": 2, "attempt": 5, "outcome": "Reply", "responder": "203.0.113.20", "rttMs": 41.0 },
+
+    { "kind": "enrich", "tMs": 120000, "ip": "192.0.2.1", "rdns": "-", "asn": "-", "org": "-" },
+    { "kind": "enrich", "tMs": 120000, "ip": "203.0.113.20", "rdns": "slow.example.net", "asn": "AS64501", "org": "EXAMPLE, US" }
+  ],
+  "emitAtMs": 120000
+}
